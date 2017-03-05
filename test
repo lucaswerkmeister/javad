@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if ((UID != 0)); then
-    print >&2 '%s: must be run as root\n' "$0"
+    printf >&2 '%s: must be run as root\n' "$0"
     exit 1
 fi
 
@@ -9,20 +9,39 @@ os_release_id=$(source /etc/os-release && printf '%s' "$ID")
 systemd_version=$(systemctl --version | head -n 1 | cut -d' ' -f2)
 
 cp javad.service /etc/systemd/system/
-mkdir -p /etc/systemd/system/javad.service.d
-if ((systemd_version < 232)); then
-    printf >&2 'detected systemd pre v232\n'
-    cp javad.service.d/systemd-pre-232.conf /etc/systemd/system/javad.service.d/
-fi
+mkdir -p /etc/systemd/system/javad.service.d/
+
+for dropin in javad.service.d/*.conf; do
+    if [[ $dropin =~ ^javad.service.d/([0-9]*)\.conf$ ]]; then
+        target_version=${BASH_REMATCH[1]}
+        if ((systemd_version >= target_version)); then
+            printf >&2 'detected systemd >= %d\n' $target_version
+            cp "$dropin" /etc/systemd/system/javad.service.d/
+        fi
+    elif [[ $dropin =~ ^javad.service.d/pre-([0-9]*)\.conf$ ]]; then
+        target_version=${BASH_REMATCH[1]}
+        if ((systemd_version < target_version)); then
+            printf >&2 'detected systemd < %d\n' $target_version
+            cp "$dropin" /etc/systemd/system/javad.service.d/
+        fi
+    fi
+done
+
 if { [[ -f /proc/config.gz ]] && ! zgrep -q '^CONFIG_USER_NS=y' /proc/config.gz; } ||
    { [[ -f "/boot/config-$(uname -r)" ]] && ! grep -q '^CONFIG_USER_NS=y' "/boot/config-$(uname -r)"; }; then
     printf >&2 'detected no user namespaces support in kernel\n'
     cp javad.service.d/no-user-namespaces.conf /etc/systemd/system/javad.service.d/
 fi
-systemctl daemon-reload
 
-systemctl start --wait javad
-status=$?
+systemctl daemon-reload
+if ((systemd_version >= 232)); then
+    systemctl start --wait javad
+    status=$?
+else
+    systemctl start javad
+    status=$?
+    sleep 1 # emulate --wait
+fi
 
 if ((status != 0)); then
     systemctl --no-pager status --lines 50 javad

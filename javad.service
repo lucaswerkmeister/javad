@@ -1,53 +1,9 @@
 [Service]
-# never setuid or otherwise gain privileges
-NoNewPrivileges=yes
-# no 32-bit binaries on 64-bit systems or other funny syscalls for foreign architectures
-SystemCallArchitectures=native
-# don’t talk to the internet (or other address families)
-RestrictAddressFamilies=
-# don’t hog the CPU
-RestrictRealtime=yes
-# don’t run as root
-DynamicUser=yes
-# don’t share /tmp with other processes
-PrivateTmp=yes
-# hide the real devices file system
-PrivateDevices=yes
-# no network access
-PrivateNetwork=yes
-# hide other users
-PrivateUsers=yes
-# make the entire file system read-only
-ProtectSystem=strict
-# hide the home directories
-ProtectHome=yes
-# don’t write tunable kernel variables
-ProtectKernelTunables=yes
-# don’t edit cgroups
-ProtectControlGroups=yes
-
-# the system call filter: reset the filter to empty, then each subsequent assignment adds to it
-SystemCallFilter=
-# part of @basic-io
-SystemCallFilter=read lseek
-# part of @file-system (systemd commit 1a1b13c957, not in any release yet)
-SystemCallFilter=open close stat fstat lstat getcwd access mmap readlink
-# JIT code generation
-SystemCallFilter=mprotect
-# signals
-SystemCallFilter=rt_sigaction
-# threads
-SystemCallFilter=clone futex sched_getaffinity arch_prctl
-# required by nss-mymachines when DynamicUser=yes is in effect
-SystemCallFilter=rt_sigprocmask
-# don’t kill the process when an illegal syscall is issued, just return Operation not permitted
-SystemCallErrorNumber=EPERM
-
-
 Type=oneshot
-ExecStart=+/bin/sh -c "printf 'public class NOP { public static void main(String[] args) { } }' > NOP.java"
-ExecStart=+/usr/bin/javac NOP.java
+ExecStartPre=/bin/sh -c "printf 'public class NOP { public static void main(String[] args) { } }' > NOP.java"
+ExecStartPre=/usr/bin/javac NOP.java
 ExecStart=/usr/bin/java NOP
+PermissionsStartOnly=yes
 WorkingDirectory=%t/javad
 RuntimeDirectory=javad
 
