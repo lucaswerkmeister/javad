@@ -20,7 +20,7 @@ and can pick the right directives and put them all in the main service file.
 `test` is a script that installs the service
 (taking into account the systemd version and other system factors to include the appropriate drop-in files),
 runs it and then uninstalls the service again.
-If the service fails, it exits with a nonzero exit code and shows the journal output of the service.
+If the service fails, the script exits with a nonzero exit code and shows the journal output of the service.
 
 Usage
 -----
@@ -34,7 +34,7 @@ Restrictions
 
 A short, incomprehensive list of the restrictions that the service imposes upon the Java process:
 
-- It has a read-only view of the file system, and doesn’t see home directories at all.
+- It has a read-only view of the entire file system, and doesn’t see home directories at all.
 - It can’t access the network.
 - It can’t `write` at all, not even “Hello, World!” to stdout, nor create or remove files or directories.
 - It can’t see any real devices of the system.
