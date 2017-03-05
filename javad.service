@@ -6,6 +6,3 @@ ExecStart=/usr/bin/java NOP
 PermissionsStartOnly=yes
 WorkingDirectory=%t/javad
 RuntimeDirectory=javad
-
-# debugging
-#SystemCallFilter=getuid geteuid write ptrace munmap brk rt_sigprocmask pipe clone execve wait4 kill uname fcntl setreuid setregid
