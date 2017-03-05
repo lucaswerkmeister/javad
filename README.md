@@ -1,11 +1,11 @@
 javad
------
+=====
 
 A foundation for a maximally restricted and sandboxed Java service under systemd.
 You can take some or all of the directives found here and apply them to your own service.
 
 Files
-=====
+-----
 
 `javad.service` itself contains only directives for a sham Java service that does nothing.
 All the sandboxing directives are found in drop-in files in `javad.service.d`,
@@ -23,14 +23,14 @@ runs it and then uninstalls the service again.
 If the service fails, it exits with a nonzero exit code and shows the journal output of the service.
 
 Usage
-=====
+-----
 
 Inspect the directives in the drop-in files and add those that seem useful to your own service.
 You will almost certainly need to tweak them at least a little bit;
 for instance, `RestrictAddressFamilies=` prohibits all network access, and the `SystemCallFilter` does not include `write`.
 
 Restrictions
-============
+------------
 
 A short, incomprehensive list of the restrictions that the service imposes upon the Java process:
 
@@ -43,7 +43,7 @@ A short, incomprehensive list of the restrictions that the service imposes upon 
 - It can’t gain new privileges (potentially evading these restrictions) via setuid binaries or other mechanisms.
 
 License
-=======
+-------
 
 I believe the only parts of this repository that reach the threshold of originality and are therefore copyrightable
 are the text parts of it: this README file and the comments in the service file and drop-in files.
