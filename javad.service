@@ -1,6 +1,6 @@
 [Service]
 Type=oneshot
-ExecStartPre=/bin/sh -c "printf 'public class NOP { public static void main(String[] args) { } }' > NOP.java"
+ExecStartPre=/bin/sh -c "printf 'public class NOP { public static void main(String[] args) { int[] a = new int[1000000000]; int sum = 0; for (int i = 0; i < a.length; i++) a[i] = i; for (int i = a.length - 1; i >= 0; i--) sum += a[i]; } }' > NOP.java"
 ExecStartPre=/usr/bin/javac NOP.java
 ExecStart=/usr/bin/java NOP
 PermissionsStartOnly=yes
@@ -8,4 +8,4 @@ WorkingDirectory=%t/javad
 RuntimeDirectory=javad
 
 # debugging
-#SystemCallFilter=getuid geteuid write
+#SystemCallFilter=getuid geteuid write ptrace munmap brk rt_sigprocmask pipe clone execve wait4 kill uname fcntl setreuid setregid
